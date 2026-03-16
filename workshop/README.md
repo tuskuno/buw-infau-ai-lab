@@ -10,13 +10,14 @@ Build an interactive isovist web application using AI-assisted coding. No web de
 
 ## Part 0: Pre-workshop Setup
 
-To hit the ground running, please complete these steps before we meet:
+Please complete these steps before we meet — see the [setup guide](setup-guide.md) for detailed instructions.
 
-1. **Install VS Code** - [https://code.visualstudio.com/download](https://code.visualstudio.com/download) (for viewing and editing files)
-2. **Install Node.js** (LTS version) - [https://nodejs.org/](https://nodejs.org/)
-3. **Install Claude Code** - Open a terminal and run: `npm install -g @anthropic-ai/claude-code`
-4. **Sign up for Claude** ($20/mo Pro or $100/mo Max) - [https://claude.ai/pricing](https://claude.ai/pricing)
-5. **Create a GitHub account** (free) - [https://github.com/signup](https://github.com/signup)
+1. **Install Git for Windows** (Windows only) - [https://git-scm.com/downloads/win](https://git-scm.com/downloads/win)
+2. **Install VS Code** - [https://code.visualstudio.com/download](https://code.visualstudio.com/download)
+3. **Install Node.js** (LTS version) - [https://nodejs.org/](https://nodejs.org/)
+4. **Install Claude Code** - [https://code.claude.com/docs/en/getting-started](https://code.claude.com/docs/en/getting-started)
+5. **Sign up for Claude** ($20/mo Pro or $100/mo Max) - [https://claude.ai/pricing](https://claude.ai/pricing)
+6. **Create a GitHub account** (free) - [https://github.com/signup](https://github.com/signup)
 
 That's it. We'll do the rest together. If you're joining remotely, continue to Part 1 — each step is self-contained.
 
@@ -52,43 +53,32 @@ This single prompt creates the project from scratch and builds the full isovist 
 > The full prompt is also available as a printable card in [`workshop/prompts/isovist-starter.md`](prompts/isovist-starter.md).
 
 ```
-Create a new Vite + React + TypeScript project called isovist-app in this folder.
-Install three, @types/three, @react-three/fiber, @react-three/drei, and Tailwind CSS.
+Create a Vite + React + TypeScript project called isovist-app.
+Install three, @types/three, @react-three/fiber, @react-three/drei, and Tailwind CSS (with shadcn/ui).
 
 Copy the GeoJSON files from ../ai-lab/workshop/data/weimar/ into the project's
 public/ folder: weimar-buildings-3d.geojson and weimar-streets.geojson.
 (If that path doesn't work, look for a nearby ai-lab folder or download them from
 the GitHub repo: https://github.com/bauhaus-infau/ai-lab/tree/main/workshop/data/weimar)
 
-Then build an isovist analysis app using React and Three.js (react-three-fiber).
-Use the two GeoJSON files in the public/ folder:
+- weimar-buildings-3d.geojson — 3D building faces
+- weimar-streets.geojson — street center lines
 
-- weimar-buildings-3d.geojson — 3D building geometry (faces with z-coordinates) plus "Height" property
-- weimar-streets.geojson — street center lines with "length" property
+IMPORTANT: Coordinates are from Rhino (via Heron), NOT lat/lon. Do NOT use a map library.
 
-IMPORTANT: The coordinates are from Rhino's local coordinate system (exported via Heron),
-NOT real-world lat/lon. They are small decimal numbers near (0, 0). Do NOT use a map
-library like Leaflet. Use Three.js and scale the coordinates so the scene is a reasonable
-size (e.g., multiply by a large factor or normalize to fit a ~500-unit bounding box).
-
-The app should have:
-1. 3D buildings rendered from the GeoJSON faces (the geometry already includes z-coordinates
-   for top and bottom edges — build meshes from these faces rather than extruding flat footprints)
-2. Street network rendered as lines on the ground plane
-3. OrbitControls for camera navigation (rotate, zoom, pan)
-4. A ground plane underneath the buildings
-5. An isovist visualization from a single viewpoint:
-   - Cast rays from the viewpoint in all directions on the 2D ground plane
-   - Stop each ray when it hits a building footprint (2D polygon edge) or reaches max radius
-   - Draw the resulting isovist polygon as a semi-transparent colored shape on the ground
-6. A draggable viewpoint marker (click on the ground to move it)
-7. A radius slider (50–500 units) that controls the maximum isovist distance
-8. Display the isovist area as a number on screen
-
-Use a dark background, subtle grid on the ground plane, and professional styling.
-Use Tailwind CSS for the UI controls.
-
-Start the dev server when done.
+Build an isovist analysis app with:
+1. 3D buildings rendered from the GeoJSON
+2. Street network as lines on the ground plane
+3. OrbitControls for camera navigation
+4. An invisible ground plane for click interaction
+5. Isovist visualization from a single viewpoint:
+- Cast 360 rays (1° increments) from viewpoint on the ground plane
+- Stop each ray at the nearest building footprint edge or max radius
+- Draw the resulting polygon as a semi-transparent blue fill on the ground
+6. White buildings on the white background, do not show plane grid
+7. Click-to-place viewpoint with drag discrimination:
+- Track pointerDown screen position; on click, only place viewpoint if pointer moved < 5px between down and up
+- This prevents orbit/pan drags from moving the viewpoint
 ```
 
 Vite gives you a local dev server with **hot reload** — changes appear instantly in the browser without refreshing. This prompt will take a few minutes — Claude needs to create the project, install dependencies, and write all the code.
@@ -97,11 +87,10 @@ Vite gives you a local dev server with **hot reload** — changes appear instant
 
 Once the dev server is running, open [http://localhost:5173](http://localhost:5173) in your browser. You should see:
 
-- A 3D city model with extruded buildings
+- White buildings on a white background
 - Streets drawn on the ground
-- A colored isovist polygon spreading from a viewpoint
-- Ability to click to move the viewpoint
-- A radius slider that changes the isovist size
+- A blue semi-transparent isovist polygon spreading from a viewpoint
+- Ability to click to move the viewpoint (without triggering on orbit/pan drags)
 
 **Don't worry if it's not perfect** — if buildings look flat, the isovist doesn't appear, or controls feel off, just describe the problem to Claude and ask it to fix it. Paste a screenshot or error message so Claude has full context.
 
@@ -243,11 +232,6 @@ After the workflow runs (about 1 minute), your app will be live at:
 
 ## Going Further
 
-Want to keep experimenting? Try feeding Claude your own data:
-
-- **OpenStreetMap exports** via [Overpass API](https://overpass-turbo.eu/) - buildings, roads for any city
-- **Open 3D city models** from CityGML repositories (Berlin, Helsinki, NYC all have open data)
-- **NASA POWER API** for solar radiation data - free, no key needed
-- **CSV datasets** from your own research - Claude can parse and visualize anything
+Want to keep experimenting? Try feeding Claude your own data — see [`workshop/resources.md`](resources.md) for free data sources, tools, and learning materials.
 
 See also: [`workshop/cheatsheet.md`](cheatsheet.md) for a Claude Code quick reference.

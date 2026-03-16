@@ -5,39 +5,32 @@ Copy this entire prompt into Claude Code. It creates the project from scratch an
 ---
 
 ```
-Create a new Vite + React + TypeScript project called isovist-app in this folder.
-Install three, @types/three, @react-three/fiber, @react-three/drei, and Tailwind CSS.
+Create a Vite + React + TypeScript project called isovist-app.
+Install three, @types/three, @react-three/fiber, @react-three/drei, and Tailwind CSS (with shadcn/ui).
 
 Copy the GeoJSON files from ../ai-lab/workshop/data/weimar/ into the project's
 public/ folder: weimar-buildings-3d.geojson and weimar-streets.geojson.
 (If that path doesn't work, look for a nearby ai-lab folder or download them from
 the GitHub repo: https://github.com/bauhaus-infau/ai-lab/tree/main/workshop/data/weimar)
 
-Then build an isovist analysis app using React and Three.js (react-three-fiber).
-Use the two GeoJSON files in the public/ folder:
+- weimar-buildings-3d.geojson — 3D building faces
+- weimar-streets.geojson — street center lines
 
-- weimar-buildings-3d.geojson — 3D building geometry
-- weimar-streets.geojson — street center lines with "length" property
+IMPORTANT: Coordinates are from Rhino (via Heron), NOT lat/lon. Do NOT use a map library.
 
-IMPORTANT: The coordinates are from Rhino's local coordinate system (exported via Heron),
-NOT real-world lat/lon.
-
-The app should have:
-1. 3D buildings rendered from the GeoJSON faces (the geometry already includes z-coordinates for top and bottom edges — build meshes from these faces rather than extruding flat footprints)
-2. Street network rendered as lines on the ground plane
-3. OrbitControls for camera navigation (rotate, zoom, pan)
-4. A ground plane underneath the buildings
-5. An isovist visualization from a single viewpoint:
-   - Cast rays from the viewpoint in all directions on the 2D ground plane
-   - Stop each ray when it hits a building footprint (2D polygon edge) or reaches max radius
-   - Draw the resulting isovist polygon as a semi-transparent colored shape on the ground
-6. A draggable viewpoint marker (click on the ground to move it)
-7. A radius slider (50–200 units) that controls the maximum isovist distance
-8. Display the isovist area as a number on screen
-
-Use shadcn for the UI controls.
-
-Start the dev server when done.
+Build an isovist analysis app with:
+1. 3D buildings rendered from the GeoJSON
+2. Street network as lines on the ground plane 
+3. OrbitControls for camera navigation
+4. An invisible ground plane for click interaction
+5. Isovist visualization from a single viewpoint:
+- Cast 360 rays (1° increments) from viewpoint on the ground plane
+- Stop each ray at the nearest building footprint edge or max radius  
+- Draw the resulting polygon as a semi-transparent blue fill on the ground
+6. White buildings on the white background, do not show plane grid
+7. Click-to-place viewpoint with drag discrimination:
+- Track pointerDown screen position; on click, only place viewpoint if pointer moved < 5px between down and up
+- This prevents orbit/pan drags from moving the viewpoint
 ```
 
 ---
